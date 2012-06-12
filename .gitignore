@@ -1,4 +1,6 @@
 *.log
 *.pot
 *.pyc
+*.swp
+db.sql3
 settings.py

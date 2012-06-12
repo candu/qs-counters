@@ -25,7 +25,9 @@ class :ui:page(:x:element):
         head = \
         <head>
             <title>{title}</title>
+            <meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
             {self._injected_meta}
+            <link href="http://fonts.googleapis.com/css?family=Istok+Web:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
             <ui:css path="base.css" />
             {self._injected_css}
             <ui:js path="mootools.js" />
