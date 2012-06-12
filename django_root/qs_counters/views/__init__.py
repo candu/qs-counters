@@ -6,12 +6,12 @@ from ui.page import :ui:page
 from django.http import HttpResponse
 from django.shortcuts import redirect
 
-def manage(request):
+def home(request):
     page = \
-    <ui:page title="Manage Counters">
+    <ui:page title="counters">
     <div id="container">
         <div id="header">
-            manage counters
+            counters
         </div>
         <div id="content">
             <div class="content-item">+</div>
@@ -19,5 +19,5 @@ def manage(request):
         </div>
     </div>
     </ui:page>
-    page.injectJS(<ui:js path="manage.js" />)
+    page.injectJS(<ui:js path="home.js" />)
     return HttpResponse(page)
