@@ -47,6 +47,10 @@ img {
     display: none;
 }
 
+.pressed {
+    background-color: #ccc;
+}
+
 .content-item > .form {
 }
 

@@ -9,16 +9,21 @@ from django.shortcuts import redirect
 
 from qs_counters.models import Counter, Update
 
+import json
+
 def home(request):
     counters = Counter.objects.all()
     content = <div id="content" />
     for counter in counters:
         content_item = <div class="content-item">{counter.name}</div>
+        content_item.setAttribute('id', 'counter-{0}'.format(counter.id))
+        if counter.pressed:
+            content_item.addClass('pressed')
         content.appendChild(content_item)
     if len(counters) < 5:
         add_counter = \
-        <div class="content-item">
-            <div class="add"><a href="/add">+</a></div>
+        <div class="add-counter">
+            <a href="/add">+</a>
         </div>
         content.appendChild(add_counter)
     page = \
@@ -36,20 +41,9 @@ def home(request):
 def add(request):
     if request.POST:
         print 'POST data received'
-        data = {'type': request.POST['type']}
-        daily_min = request.POST['daily_min']
-        if daily_min:
-            data['daily_min'] = int(daily_min)
-        daily_max = request.POST['daily_max']
-        if daily_max:
-            data['daily_max'] = int(daily_max)
-        weekly_min = request.POST['weekly_min']
-        if weekly_min:
-            data['weekly_min'] = int(weekly_min)
-        weekly_max = request.POST['weekly_max']
-        if weekly_max:
-            data['weekly_max'] = int(weekly_max)
-        counter = Counter(name=request.POST['name'], data=data)
+        counter = Counter(
+            name=request.POST['name'],
+            type=request.POST['type'])
         counter.save()
         return redirect('/')
     csrf_token = unicode(csrf(request)['csrf_token'])
@@ -74,18 +68,6 @@ def add(request):
                 <input type="radio" name="type" value="duration" />
             </div>
             <div class="form-row">
-                <label for="daily_min">daily min</label>
-                <input type="number" name="daily_min" id="daily_min" />
-                <label for="daily_max">max</label>
-                <input type="number" name="daily_max" id="daily_max" />
-            </div>
-            <div class="form-row">
-                <label for="weekly_min">weekly min</label>
-                <input type="number" name="weekly_min" id="weekly_min" />
-                <label for="weekly_max">max</label>
-                <input type="number" name="weekly_max" id="weekly_max" />
-            </div>
-            <div class="form-row">
                 <input type="submit" value="add" />
             </div>
             </form>
@@ -97,8 +79,23 @@ def add(request):
 def delete(request):
     pass
 
-def update(request):
-    pass
+def _get_update_response(id):
+    try:
+        counter = Counter.objects.get(id=id)
+    except Counter.DoesNotExist:
+        return {'success': False}
+    update = Update(counter=counter)
+    update.save()
+    if counter.type == 'count':
+        return {'success': True, 'updated': id}
+    elif counter.type == 'duration':
+        counter.pressed = not counter.pressed
+        counter.save()
+        return {'success': True, 'updated': id, 'pressed': counter.pressed}
+    return {'success': False}
 
-def stats(request):
-    pass
+def update(request, id):
+    id = int(id)
+    print id
+    data = _get_update_response(id)
+    return HttpResponse(json.dumps(data), content_type='application/json')

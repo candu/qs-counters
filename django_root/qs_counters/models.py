@@ -3,7 +3,9 @@ import jsonfield
 
 class Counter(models.Model):
     name = models.CharField(max_length=16)
-    data = jsonfield.JSONField()
+    type = models.CharField(max_length=8)
+    # only used for duration counters
+    pressed = models.BooleanField()
 
 class Update(models.Model):
     counter = models.ForeignKey(Counter)
