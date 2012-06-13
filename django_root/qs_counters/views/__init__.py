@@ -94,7 +94,6 @@ def home(request):
 
 def add(request):
     if request.POST:
-        print 'POST data received'
         counter = Counter(
             name=request.POST['name'],
             type=request.POST['type'])
@@ -167,6 +166,5 @@ def _get_update_response(id):
 
 def update(request, id):
     id = int(id)
-    print id
     data = _get_update_response(id)
     return HttpResponse(json.dumps(data), content_type='application/json')
