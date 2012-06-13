@@ -10,17 +10,24 @@ from django.shortcuts import redirect
 from qs_counters.models import Counter, Update
 
 def home(request):
+    counters = Counter.objects.all()
+    content = <div id="content" />
+    for counter in counters:
+        content_item = <div class="content-item">{counter.name}</div>
+        content.appendChild(content_item)
+    if len(counters) < 5:
+        add_counter = \
+        <div class="content-item">
+            <div class="add"><a href="/add">+</a></div>
+        </div>
+        content.appendChild(add_counter)
     page = \
     <ui:page title="counters">
     <div id="container">
         <div id="header">
             counters
         </div>
-        <div id="content">
-            <div class="content-item">
-                <div class="add"><a href="/add">+</a></div>
-            </div>
-        </div>
+        {content}
     </div>
     </ui:page>
     page.injectJS(<ui:js path="home.js" />)
@@ -29,8 +36,21 @@ def home(request):
 def add(request):
     if request.POST:
         print 'POST data received'
-        print dict(request.POST)
-        # TODO: actually add the counter!
+        data = {'type': request.POST['type']}
+        daily_min = request.POST['daily_min']
+        if daily_min:
+            data['daily_min'] = int(daily_min)
+        daily_max = request.POST['daily_max']
+        if daily_max:
+            data['daily_max'] = int(daily_max)
+        weekly_min = request.POST['weekly_min']
+        if weekly_min:
+            data['weekly_min'] = int(weekly_min)
+        weekly_max = request.POST['weekly_max']
+        if weekly_max:
+            data['weekly_max'] = int(weekly_max)
+        counter = Counter(name=request.POST['name'], data=data)
+        counter.save()
         return redirect('/')
     csrf_token = unicode(csrf(request)['csrf_token'])
     page = \
@@ -49,7 +69,7 @@ def add(request):
             </div>
             <div class="form-row">
                 <label for="type">count</label>
-                <input type="radio" name="type" value="count" />
+                <input type="radio" name="type" value="count" checked={True} />
                 <label for="type">duration</label>
                 <input type="radio" name="type" value="duration" />
             </div>
