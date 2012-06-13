@@ -1,16 +1,9 @@
 from django.db import models
-
-# TODO: add users
+import jsonfield
 
 class Counter(models.Model):
-    COUNT = 0
-    DURATION = 1
-    name = models.CharField(max_length=64)
-    type = models.IntegerField()
-
-class Goal(models.Model):
-    counter = models.ForeignKey(Counter)
-    target = models.IntegerField()
+    name = models.CharField(max_length=16)
+    data = jsonfield.JSONField()
 
 class Update(models.Model):
     counter = models.ForeignKey(Counter)

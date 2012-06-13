@@ -42,3 +42,18 @@ img {
     border: 1px solid #ddd;
     background-color: #eee;
 }
+
+.hidden {
+    display: none;
+}
+
+.content-item > .form {
+}
+
+.content-item > input {
+    border: 1px solid #ddd;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    font-size: 18pt;
+}
