@@ -7,18 +7,18 @@ window.addEvent('domready', function() {
             onSuccess: function(data) {
                 console.log(JSON.stringify(data));
                 if (data.pressed) {
-                    this.addClass('pressed');
+                    this.getChildren('.counter-name').addClass('pressed');
                 } else {
-                    this.removeClass('pressed');
+                    this.getChildren('.counter-name').removeClass('pressed');
                 }
-                this.getElements('.day').set('text', Math.round(data.day));
-                this.getElements('.week').set('text', Math.round(data.week));
+                this.getElements('.count.day').set('text', Math.round(data.day));
+                this.getElements('.count.week').set('text', Math.round(data.week));
             }.bind(this)
         }).get();
     });
     $$('.content-item.count').addEvent('mousedown', function(event) {
-        this.addClass('pressed');
+        this.getChildren('.counter-name').addClass('pressed');
     }).addEvent('mouseup', function(event) {
-        this.removeClass('pressed');
+        this.getChildren('.counter-name').removeClass('pressed');
     });
 });

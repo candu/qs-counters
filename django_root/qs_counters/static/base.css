@@ -5,7 +5,6 @@ html, body {
     height: 100%;
     width: 100%;
     font-size: 18pt;
-    text-align: center;
 }
 
 body {
@@ -31,6 +30,8 @@ img {
     font-size: 150%;
     background-color: #ccc;
     padding: 2px;
+    text-align: center;
+    border-bottom: 2px solid #999;
 }
 
 #content {
@@ -40,22 +41,45 @@ img {
 .content-item {
     margin: 8px;
     border: 1px solid #ddd;
-    background-color: #eee;
+    text-align: center;
+}
+
+a {
+    text-decoration: none;
+}
+
+.content-item.add {
+    color: #333;
+    background-color: #bbb;
+    border: 1px solid #aaa;
 }
 
 .counter-name {
+    width: 50%;
     display: inline-block;
+    background-color: #eee;
+    margin-left: -1px;
+    border-right: 1px solid #ddd;
 }
 
 .counter-stats {
+    width: 50%;
     display: inline-block;
-    font-size: 70%;
+}
+
+.counter-stats > .stats {
+    width: 50%;
+    display: inline-block;
+}
+
+.counter-stats > .stats > .title {
+    font-size: 60%;
     color: #999;
 }
 
-.counter-stats > .day, .counter-stats > .week {
-    display: inline-block;
-    padding-left: 4px;
+.counter-stats > .stats > .count {
+    font-size: 75%;
+    color: #666;
 }
 
 .hidden {
@@ -64,15 +88,4 @@ img {
 
 .pressed {
     background-color: #ccc;
-}
-
-.content-item > .form {
-}
-
-.content-item > input {
-    border: 1px solid #ddd;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    font-size: 18pt;
 }

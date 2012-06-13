@@ -51,23 +51,34 @@ def home(request):
     content = <div id="content" />
     for counter in counters:
         day, week = _get_day_week_metrics(counter)
-        content_item = <div class="content-item">
-            <div class="counter-name">{counter.name}</div>
+        content_name = \
+        <div class="counter-name">{counter.name}</div>
+        if counter.pressed:
+            content_name.addClass('pressed')
+        content_item = \
+        <div class="content-item">
+            {content_name}
             <div class="counter-stats">
-                <div class="day">{int(round(day))}</div>
-                <div class="week">{int(round(week))}</div>
+                <div class="stats">
+                    <span class="title">day</span>
+                    {' '}
+                    <span class="count day">{int(round(day))}</span>
+                </div>
+                <div class="stats">
+                    <span class="title">week</span>
+                    {' '}
+                    <span class="count week">{int(round(week))}</span>
+                </div>
             </div>
         </div>
         content_item.setAttribute('id', 'counter-{0}'.format(counter.id))
         content_item.addClass(counter.type)
-        if counter.pressed:
-            content_item.addClass('pressed')
         content.appendChild(content_item)
     if len(counters) < 5:
         add_counter = \
-        <div class="add-counter">
-            <a href="/add">+</a>
-        </div>
+        <a href="/add">
+            <div class="content-item add">+</div>
+        </a>
         content.appendChild(add_counter)
     page = \
     <ui:page title="counters">
