@@ -9,7 +9,42 @@ from django.shortcuts import redirect
 
 from qs_counters.models import Counter, Update
 
+import datetime
 import json
+
+def _get_duration(presses):
+    total = 0
+    last_pressed = None
+    for press in presses:
+        if press.pressed:
+            last_pressed = press.timestamp
+        elif last_pressed is not None:
+            dt = press.timestamp - last_pressed
+            total += dt.seconds + 0.000001 * dt.microseconds
+            last_pressed = None
+    return total
+
+def _get_day_week_metrics(counter):
+    now = datetime.datetime.now()
+    one_day_ago = now - datetime.timedelta(days=1)
+    one_week_ago = now - datetime.timedelta(days=7)
+    if counter.type == 'count':
+        day_count = Update.objects.filter(
+            counter__id=counter.id,
+            timestamp__gte=one_day_ago).count()
+        week_count = Update.objects.filter(
+            counter__id=counter.id,
+            timestamp__gte=one_week_ago).count()
+        return (day_count, week_count)
+    if counter.type == 'duration':
+        day_presses = Update.objects.filter(
+            counter__id=counter.id,
+            timestamp__gte=one_day_ago)
+        week_presses = Update.objects.filter(
+            counter__id=counter.id,
+            timestamp__gte=one_week_ago)
+        return (_get_duration(day_presses), _get_duration(week_presses))
+    return None
 
 def home(request):
     counters = Counter.objects.all()
@@ -17,6 +52,7 @@ def home(request):
     for counter in counters:
         content_item = <div class="content-item">{counter.name}</div>
         content_item.setAttribute('id', 'counter-{0}'.format(counter.id))
+        content_item.addClass(counter.type)
         if counter.pressed:
             content_item.addClass('pressed')
         content.appendChild(content_item)
@@ -84,14 +120,31 @@ def _get_update_response(id):
         counter = Counter.objects.get(id=id)
     except Counter.DoesNotExist:
         return {'success': False}
-    update = Update(counter=counter)
-    update.save()
     if counter.type == 'count':
-        return {'success': True, 'updated': id}
+        update = Update(counter=counter)
+        update.save()
+        day_count, week_count = _get_day_week_metrics(counter)
+        return {
+            'success': True,
+            'updated': id,
+            'day': day_count,
+            'week': week_count
+        }
     elif counter.type == 'duration':
         counter.pressed = not counter.pressed
+        update = Update(
+            counter=counter,
+            pressed=counter.pressed)
         counter.save()
-        return {'success': True, 'updated': id, 'pressed': counter.pressed}
+        update.save()
+        day_duration, week_duration = _get_day_week_metrics(counter)
+        return {
+            'success': True,
+            'updated': id,
+            'pressed': counter.pressed,
+            'day': day_duration,
+            'week': week_duration
+        }
     return {'success': False}
 
 def update(request, id):

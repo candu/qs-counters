@@ -10,3 +10,5 @@ class Counter(models.Model):
 class Update(models.Model):
     counter = models.ForeignKey(Counter)
     timestamp = models.DateTimeField(auto_now=True, auto_now_add=True)
+    # only used for duration counters
+    pressed = models.BooleanField()
