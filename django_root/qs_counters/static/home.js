@@ -11,6 +11,8 @@ window.addEvent('domready', function() {
                 } else {
                     this.removeClass('pressed');
                 }
+                this.getElements('.day').set('text', Math.round(data.day));
+                this.getElements('.week').set('text', Math.round(data.week));
             }.bind(this)
         }).get();
     });

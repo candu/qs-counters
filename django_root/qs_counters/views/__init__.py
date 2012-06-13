@@ -50,7 +50,14 @@ def home(request):
     counters = Counter.objects.all()
     content = <div id="content" />
     for counter in counters:
-        content_item = <div class="content-item">{counter.name}</div>
+        day, week = _get_day_week_metrics(counter)
+        content_item = <div class="content-item">
+            <div class="counter-name">{counter.name}</div>
+            <div class="counter-stats">
+                <div class="day">{int(round(day))}</div>
+                <div class="week">{int(round(week))}</div>
+            </div>
+        </div>
         content_item.setAttribute('id', 'counter-{0}'.format(counter.id))
         content_item.addClass(counter.type)
         if counter.pressed:

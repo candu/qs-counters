@@ -43,6 +43,21 @@ img {
     background-color: #eee;
 }
 
+.counter-name {
+    display: inline-block;
+}
+
+.counter-stats {
+    display: inline-block;
+    font-size: 70%;
+    color: #999;
+}
+
+.counter-stats > .day, .counter-stats > .week {
+    display: inline-block;
+    padding-left: 4px;
+}
+
 .hidden {
     display: none;
 }
