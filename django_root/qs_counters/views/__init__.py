@@ -7,67 +7,26 @@ from django.core.context_processors import csrf
 from django.http import HttpResponse
 from django.shortcuts import redirect
 
+from lib.metrics import Metrics
 from qs_counters.models import Counter, Update
 
-import datetime
 import json
-
-def _get_duration(presses):
-    total = 0
-    last_pressed = None
-    for press in presses:
-        if press.pressed:
-            last_pressed = press.timestamp
-        elif last_pressed is not None:
-            dt = press.timestamp - last_pressed
-            total += dt.seconds + 0.000001 * dt.microseconds
-            last_pressed = None
-    return total
-
-def _get_day_week_metrics(counter):
-    now = datetime.datetime.now()
-    one_day_ago = now - datetime.timedelta(days=1)
-    one_week_ago = now - datetime.timedelta(days=7)
-    if counter.type == 'count':
-        day_count = Update.objects.filter(
-            counter__id=counter.id,
-            timestamp__gte=one_day_ago).count()
-        week_count = Update.objects.filter(
-            counter__id=counter.id,
-            timestamp__gte=one_week_ago).count()
-        return (day_count, week_count)
-    if counter.type == 'duration':
-        day_presses = Update.objects.filter(
-            counter__id=counter.id,
-            timestamp__gte=one_day_ago)
-        week_presses = Update.objects.filter(
-            counter__id=counter.id,
-            timestamp__gte=one_week_ago)
-        return (_get_duration(day_presses), _get_duration(week_presses))
-    return None
 
 def home(request):
     counters = Counter.objects.all()
     content = <div id="content" />
     for counter in counters:
-        day, week = _get_day_week_metrics(counter)
-        content_name = \
+        day, week = Metrics.getMetrics(counter)
+        counter_name = \
         <div class="counter-name">{counter.name}</div>
         if counter.pressed:
-            content_name.addClass('pressed')
+            counter_name.addClass('pressed')
         content_item = \
         <div class="content-item">
-            {content_name}
+            {counter_name}
             <div class="counter-stats">
                 <div class="stats">
-                    <span class="title">day</span>
-                    {' '}
-                    <span class="count day">{int(round(day))}</span>
-                </div>
-                <div class="stats">
-                    <span class="title">week</span>
-                    {' '}
-                    <span class="count week">{int(round(week))}</span>
+                    <span class="count day">loading...</span>
                 </div>
             </div>
         </div>
@@ -140,12 +99,11 @@ def _get_update_response(id):
     if counter.type == 'count':
         update = Update(counter=counter)
         update.save()
-        day_count, week_count = _get_day_week_metrics(counter)
+        day_count, week_count = Metrics.getMetrics(counter)
         return {
             'success': True,
             'updated': id,
             'day': day_count,
-            'week': week_count
         }
     elif counter.type == 'duration':
         counter.pressed = not counter.pressed
@@ -154,13 +112,12 @@ def _get_update_response(id):
             pressed=counter.pressed)
         counter.save()
         update.save()
-        day_duration, week_duration = _get_day_week_metrics(counter)
+        day_duration, week_duration = Metrics.getMetrics(counter)
         return {
             'success': True,
             'updated': id,
             'pressed': counter.pressed,
             'day': day_duration,
-            'week': week_duration
         }
     return {'success': False}
 
@@ -168,3 +125,17 @@ def update(request, id):
     id = int(id)
     data = _get_update_response(id)
     return HttpResponse(json.dumps(data), content_type='application/json')
+
+def stats_all(request):
+    stats = {}
+    counters = Counter.objects.all()
+    for counter in counters:
+        day_stats, week_stats = Metrics.getMetrics(counter)
+        stats[counter.id] = {
+            'pressed': counter.pressed,
+            'id': counter.id,
+            'type': counter.type,
+            'day': day_stats,
+            'week': week_stats
+        }
+    return HttpResponse(json.dumps(stats), content_type='application/json')

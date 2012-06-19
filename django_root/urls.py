@@ -5,4 +5,5 @@ urlpatterns = patterns('',
     url(r'^add$', 'qs_counters.views.add'),
     url(r'^delete$', 'qs_counters.views.delete'),
     url(r'^update/(?P<id>\d+)$', 'qs_counters.views.update'),
+    url(r'^stats_all$', 'qs_counters.views.stats_all'),
 )
