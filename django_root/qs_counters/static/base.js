@@ -14,3 +14,4 @@ function render_duration(duration) {
 }
 
 var MS_PER_S = 1000;
+var POLL_INTERVAL = 200;

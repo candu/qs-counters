@@ -1,5 +1,4 @@
 function init_view_ui(data) {
-  console.log(data);
   if (data.type == 'count') {
     $$('.count.day').set('text', data.day);
     $$('.count.week').set('text', data.week);
@@ -16,7 +15,7 @@ function init_view_ui(data) {
         $$('.count.week').set('text', duration_week_str);
       }
       poll();
-      window.setInterval(poll, 200);
+      window.setInterval(poll, POLL_INTERVAL);
     }
   }
 }

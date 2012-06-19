@@ -38,39 +38,8 @@ img {
     width: 100%;
 }
 
-.content-item {
-    margin: 8px;
-    border: 1px solid #ddd;
-    text-align: center;
-    cursor: pointer;
-}
-
 a {
     text-decoration: none;
-}
-
-.content-item.add {
-    color: #333;
-    background-color: #bbb;
-    border: 1px solid #aaa;
-}
-
-.counter-name {
-    width: 75%;
-    display: inline-block;
-    background-color: #eee;
-    margin-left: -1px;
-    border-right: 1px solid #ddd;
-}
-
-.counter-stats {
-    width: 25%;
-    display: inline-block;
-}
-
-.counter-stats > .stats > .count {
-    font-size: 75%;
-    color: #666;
 }
 
 .hidden {
@@ -78,5 +47,23 @@ a {
 }
 
 .pressed {
-    background-color: #ccc;
+    background-color: #ccc!important;
+}
+
+form {
+    width: 100%;
+    text-align: center;
+}
+
+input[type="submit"] {
+    font-size: 150%;
+    font-family: 'Istok Web', sans-serif;
+}
+
+input[type="radio"] {
+    font-size: 150%;
+}
+
+input {
+    font-size: 125%;
 }

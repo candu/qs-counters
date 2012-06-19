@@ -1,6 +1,7 @@
 from xhpy.pylib import *
 
 from ui.js import :ui:js
+from ui.css import :ui:css
 from ui.page import :ui:page
 
 from django.core.context_processors import csrf
@@ -12,6 +13,8 @@ from qs_counters.models import Counter, Update
 
 import json
 import time
+
+MAX_COUNTERS = 5
 
 def home(request):
     counters = Counter.objects.all()
@@ -33,7 +36,7 @@ def home(request):
         content_item.setAttribute('id', 'counter-{0}'.format(counter.id))
         content_item.addClass(counter.type)
         content.appendChild(content_item)
-    if len(counters) < 5:
+    if len(counters) < MAX_COUNTERS:
         add_counter = \
         <a href="/add">
             <div class="content-item add">+</div>
@@ -50,9 +53,13 @@ def home(request):
     </ui:page>
     page.injectJS(<ui:js path="base.js" />)
     page.injectJS(<ui:js path="home.js" />)
+    page.injectCSS(<ui:css path="home.css" />)
     return HttpResponse(page)
 
 def add(request):
+    num_counters = Counter.objects.all().count()
+    if num_counters >= MAX_COUNTERS:
+        return redirect('/')
     if request.POST:
         counter = Counter(
             name=request.POST['name'],
@@ -126,6 +133,7 @@ def view(request, id):
     </ui:page>
     page.injectJS(<ui:js path="base.js" />)
     page.injectJS(<ui:js path="view.js" />)
+    page.injectCSS(<ui:css path="view.css" />)
     return HttpResponse(page)
 
 def update(request, id):

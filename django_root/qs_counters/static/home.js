@@ -6,21 +6,6 @@ function counter_to_elem(counter) {
     return $('counter-' + counter);
 }
 
-/*
-        new Request.JSON({
-            url: '/view/' + counter,
-            onSuccess: function(data) {
-                if (counter_name.hasClass('pressed')) {
-                } else {
-                    window.clearInterval(window._counter_intervals[counter]);
-                    window._counter_intervals[counter] = null;
-                    var duration_str = render_duration(data.day);
-                    this.getElements('.count.day').set('text', duration_str);
-                }
-            }.bind(this)
-        }).get();
-        */
-
 function init_home_ui(data) {
     $$('.content-item.duration').each(function(elem) {
         var counter = elem_to_counter(elem);
@@ -29,11 +14,10 @@ function init_home_ui(data) {
             var poll = function() {
                 var duration = data[counter].day + (+new Date() / MS_PER_S) - data[counter].last;
                 var duration_str = render_duration(duration);
-                console.log(elem);
                 elem.getElements('.count.day').set('text', duration_str);
             };
             poll();
-            window.setInterval(poll, 200);
+            window.setInterval(poll, POLL_INTERVAL);
         } else {
           var duration_str = render_duration(data[counter].day);
           elem.getElements('.count.day').set('text', duration_str);
