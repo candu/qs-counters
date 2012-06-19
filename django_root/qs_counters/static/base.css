@@ -42,6 +42,7 @@ img {
     margin: 8px;
     border: 1px solid #ddd;
     text-align: center;
+    cursor: pointer;
 }
 
 a {
@@ -55,7 +56,7 @@ a {
 }
 
 .counter-name {
-    width: 50%;
+    width: 75%;
     display: inline-block;
     background-color: #eee;
     margin-left: -1px;
@@ -63,18 +64,8 @@ a {
 }
 
 .counter-stats {
-    width: 50%;
+    width: 25%;
     display: inline-block;
-}
-
-.counter-stats > .stats {
-    width: 50%;
-    display: inline-block;
-}
-
-.counter-stats > .stats > .title {
-    font-size: 60%;
-    color: #999;
 }
 
 .counter-stats > .stats > .count {

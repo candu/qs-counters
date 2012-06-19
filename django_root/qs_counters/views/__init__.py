@@ -11,12 +11,12 @@ from lib.metrics import Metrics
 from qs_counters.models import Counter, Update
 
 import json
+import time
 
 def home(request):
     counters = Counter.objects.all()
     content = <div id="content" />
     for counter in counters:
-        day, week = Metrics.getMetrics(counter)
         counter_name = \
         <div class="counter-name">{counter.name}</div>
         if counter.pressed:
@@ -48,6 +48,7 @@ def home(request):
         {content}
     </div>
     </ui:page>
+    page.injectJS(<ui:js path="base.js" />)
     page.injectJS(<ui:js path="home.js" />)
     return HttpResponse(page)
 
@@ -88,54 +89,88 @@ def add(request):
     </ui:page>
     return HttpResponse(page)
 
-def delete(request):
-    pass
+def view(request, id):
+    counter = Counter.objects.get(id=id)
+    if counter.type == 'count':
+        action_name = 'bump'
+    elif counter.pressed:
+        action_name = 'stop'
+    else:
+        action_name = 'start'
+    page = \
+    <ui:page title="counters">
+    <div id="container">
+        <div id="header">
+           {counter.name}
+        </div>
+        <div id="content">
+            <div class="counter-stats">
+                <div class="stats">
+                    <div class="label day">day</div>
+                    <div class="count day">loading...</div>
+                </div>
+                <div class="stats">
+                    <div class="label week">week</div>
+                    <div class="count week">loading...</div>
+                </div>
+            </div>
+            <div class="actions">
+                <form action={'/update/{0}'.format(id)} method="get">
+                    <input type="hidden" id="counter_id" name="counter_id" value={id} />
+                    <input type="submit" id="update" name="action" value={action_name} />
+                    <input type="submit" id="cancel" name="action" value="cancel" />
+                </form>
+            </div>
+        </div>
+    </div>
+    </ui:page>
+    page.injectJS(<ui:js path="base.js" />)
+    page.injectJS(<ui:js path="view.js" />)
+    return HttpResponse(page)
 
-def _get_update_response(id):
-    try:
-        counter = Counter.objects.get(id=id)
-    except Counter.DoesNotExist:
-        return {'success': False}
+def update(request, id):
+    action = request.GET.get('action')
+    if action is None or action == 'cancel':
+        return redirect('/')
+    id = int(id)
+    counter = Counter.objects.get(id=id)
     if counter.type == 'count':
         update = Update(counter=counter)
         update.save()
-        day_count, week_count = Metrics.getMetrics(counter)
-        return {
-            'success': True,
-            'updated': id,
-            'day': day_count,
-        }
-    elif counter.type == 'duration':
+    else:
         counter.pressed = not counter.pressed
         update = Update(
             counter=counter,
             pressed=counter.pressed)
         counter.save()
         update.save()
-        day_duration, week_duration = Metrics.getMetrics(counter)
-        return {
-            'success': True,
-            'updated': id,
-            'pressed': counter.pressed,
-            'day': day_duration,
-        }
-    return {'success': False}
+    return redirect('/')
 
-def update(request, id):
-    id = int(id)
-    data = _get_update_response(id)
-    return HttpResponse(json.dumps(data), content_type='application/json')
+def delete(request, id):
+    pass
+
+def _get_stats(counter):
+    day_stats, week_stats = Metrics.getMetrics(counter)
+    try:
+        last = Update.objects.filter(counter__id=counter.id).order_by('id').reverse()[0]
+        print last.timestamp
+        last = time.mktime(last.timestamp.timetuple())
+    except IndexError:
+        last = None
+    print last
+    return {
+        'pressed': counter.pressed,
+        'id': counter.id,
+        'type': counter.type,
+        'day': day_stats,
+        'week': week_stats,
+        'last': last
+    }
 
 def stats_all(request):
-    stats = {}
-    counters = Counter.objects.all()
-    for counter in counters:
-        day_stats, week_stats = Metrics.getMetrics(counter)
-        stats[counter.id] = {
-            'pressed': counter.pressed,
-            'id': counter.id,
-            'type': counter.type,
-            'day': day_stats,
-            'week': week_stats
-        }
+    stats = dict((c.id, _get_stats(c)) for c in Counter.objects.all())
+    return HttpResponse(json.dumps(stats), content_type='application/json')
+
+def stats(request, id):
+    stats = _get_stats(Counter.objects.get(id=id))
     return HttpResponse(json.dumps(stats), content_type='application/json')
